@@ -33,7 +33,6 @@ QtObject {
         if (!pluginService)
             return;
         _reloadSettings();
-        Qt.callLater(loadPasswords);
     }
 
     function _reloadSettings() {
@@ -55,7 +54,10 @@ QtObject {
         }
     }
 
+    property bool _loadStarted: false
+
     function loadPasswords() {
+        _loadStarted = true;
         const process = passwordsProcessComponent.createObject(root);
         process.running = true;
     }
@@ -117,6 +119,9 @@ QtObject {
     }
 
     function getItems(query) {
+        // Lazy load: only call rbw (and trigger the pinentry prompt) on first search
+        if (!_loadStarted)
+            loadPasswords();
         const lowerQuery = query ? query.toLowerCase().trim() : "";
         let results = [];
 
