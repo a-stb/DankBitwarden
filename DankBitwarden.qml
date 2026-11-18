@@ -120,6 +120,10 @@ QtObject {
 
     function getItems(query) {
         // Lazy load: only call rbw (and trigger the pinentry prompt) on first search
+        // The launcher also calls getItems("") when it opens, so require a real query
+        const hasQuery = !!query && query.trim().length > 0;
+        if (!hasQuery && !_loadStarted)
+            return [];
         if (!_loadStarted)
             loadPasswords();
         const lowerQuery = query ? query.toLowerCase().trim() : "";
